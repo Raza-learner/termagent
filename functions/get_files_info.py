@@ -22,7 +22,7 @@ def get_files_info(working_directory: str, directory: str = ".") -> str:
             name = os.path.join(target_directory,item)
             size = os.path.getsize(name)
             dir_exist = os.path.isdir(item)
-            result.append(f"- {item}: file_size={size} bytes, is_dir={dir_exist}")
+            result.append(f"- {name}: file_size={size} bytes, is_dir={dir_exist}")
         return "\n".join(result)   
 
     except Exception as e:
