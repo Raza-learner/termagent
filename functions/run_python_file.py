@@ -39,7 +39,7 @@ def run_python_file(
             output += process.stderr
             return f"STDERR:{output}"
         if not output:
-            return f"No output produced"
+            return "No output produced"
 
         if process.returncode != 0:
             output = f"Process exited with code {process.returncode}\n" + output
