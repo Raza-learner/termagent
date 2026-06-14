@@ -1,10 +1,10 @@
 import os
-import time
 import argparse
 from google.genai import types
 from dotenv import load_dotenv
 from google import genai
 from config import system_prompt
+from call_function import available_functions
 
 
 def response():
@@ -24,7 +24,9 @@ def response():
     response = client.models.generate_content(
         model="gemini-3.1-flash-lite",
         contents=messages,
-        config=types.GenerateContentConfig(system_instruction=system_prompt),
+        config=types.GenerateContentConfig(
+            tools=[available_functions], system_instruction=system_prompt
+        ),
     )
     try:
         if args.verbose:
@@ -33,6 +35,11 @@ def response():
             print(f"Prompt tokens:{usage.prompt_token_count}")
             print(f"Response tokens:{usage.candidates_token_count}")
             print(response.text)
+
+        elif response.function_calls:
+            for function_call in response.function_calls:
+                print(f"Calling function: {function_call.name}({function_call.args})")
+                print(response.text)
         else:
             print(response.text)
     except RuntimeError as e:
