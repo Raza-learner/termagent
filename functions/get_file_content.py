@@ -1,6 +1,5 @@
 import os
 from config import MAX_CHARS
-from functions.get_files_info import get_files_info
 from google.genai import types
 
 
@@ -38,6 +37,7 @@ schema_get_file_content = types.FunctionDeclaration(
     description="List the Content of files",
     parameters=types.Schema(
         type=types.Type.OBJECT,
+        required=["file_path"],
         properties={
             "file_path": types.Schema(
                 type=types.Type.STRING,

@@ -58,7 +58,14 @@ schema_run_python_file = types.FunctionDeclaration(
         properties={
             "file_path": types.Schema(
                 type=types.Type.STRING,
-                description="Directory path to list files from, relative to the working directory (default is the working directory itself)",
+                description="This will work for file path",
+            ),
+            "args": types.Schema(
+                type=types.Type.ARRAY,
+                description="Optional command-line arguments to pass to the script.",
+                items=types.Schema(
+                    type=types.Type.STRING,
+                ),
             ),
         },
     ),
