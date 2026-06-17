@@ -23,7 +23,7 @@ def get_files_info(working_directory: str, directory: str = ".") -> str:
         for item in os.listdir(target_directory):
             name = os.path.join(target_directory, item)
             size = os.path.getsize(name)
-            dir_exist = os.path.isdir(item)
+            dir_exist = os.path.isdir(name)
             result.append(f"- {name}: file_size={size} bytes, is_dir={dir_exist}")
         return "\n".join(result)
 

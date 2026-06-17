@@ -4,7 +4,7 @@ from google.genai import types
 from dotenv import load_dotenv
 from google import genai
 from config import system_prompt
-from call_function import available_functions
+from call_function import available_functions, call_function
 
 
 def response():
@@ -20,30 +20,35 @@ def response():
     messages: list[types.Content] = [
         types.Content(role="user", parts=[types.Part(text=user_prompt)]),
     ]
-
-    response = client.models.generate_content(
-        model="gemini-3.1-flash-lite",
-        contents=messages,
-        config=types.GenerateContentConfig(
-            tools=[available_functions], system_instruction=system_prompt
-        ),
-    )
     try:
-        if args.verbose:
-            usage = response.usage_metadata
-            print(f"User Prompt:{user_prompt}")
-            print(f"Prompt tokens:{usage.prompt_token_count}")
-            print(f"Response tokens:{usage.candidates_token_count}")
-            print(response.text)
+        while True:
+            response = client.models.generate_content(
+                model="gemini-2.5-flash-lite",
+                contents=messages,
+                config=types.GenerateContentConfig(
+                    tools=[available_functions], system_instruction=system_prompt
+                ),
+            )
+            if args.verbose:
+                usage = response.usage_metadata
+                print(f"Prompt tokens: {usage.prompt_token_count}")
+                print(f"Response tokens: {usage.candidates_token_count}")
 
-        elif response.function_calls:
-            for function_call in response.function_calls:
-                print(f"Calling function: {function_call.name}({function_call.args})")
+            messages.append(response.candidates[0].content)
 
-        else:
-            print(response.text)
+            if response.function_calls:
+                function_results = []
+                for function_call in response.function_calls:
+                    result = call_function(function_call, verbose=args.verbose)
+                    # your 3 checks here
+                    function_results.append(result.parts[0])
+                messages.append(types.Content(role="user", parts=function_results))
+            else:
+                print(response.text)
+                break
+
     except RuntimeError as e:
-        print(f"Gemini API response appears to be malformed{e}")
+        raise Exception(f"Gemini API response appears to be malformed{e}")
 
 
 def main() -> None:
