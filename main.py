@@ -21,9 +21,9 @@ def response():
         types.Content(role="user", parts=[types.Part(text=user_prompt)]),
     ]
     try:
-        while True:
+        for _ in range(20):
             response = client.models.generate_content(
-                model="gemini-2.5-flash-lite",
+                model="gemini-2.5-flash",
                 contents=messages,
                 config=types.GenerateContentConfig(
                     tools=[available_functions], system_instruction=system_prompt
@@ -35,6 +35,15 @@ def response():
                 print(f"Response tokens: {usage.candidates_token_count}")
 
             messages.append(response.candidates[0].content)
+
+            if response.candidates:
+                for candidate in response.candidates:
+                    messages.append(candidate.content)
+
+            if not response.function_calls:
+                print("\nFinal response:\n")
+                print(response.text)
+                return
 
             if response.function_calls:
                 function_results = []
